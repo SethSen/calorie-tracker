@@ -1,0 +1,65 @@
+openapi: 3.0.0
+info:
+  title: Calorie Tracking API
+  description: Application for health-conscious individuals who wish to track their dietary needs.
+  contact:
+    email: ssen1@my.bcit.ca
+  version: 1.0.0
+servers:
+- url: /
+
+tags:
+- name: info
+  description: info
+paths:
+  /stats:
+    get:
+      tags:
+        - record
+      summary: get event stats
+      operationId: app.get_stats
+      description: Gets Food Log and PersonalInfo processed statistics
+      responses:
+        '200':
+          description: Successfully returned some stats
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/ReadingStats'
+        '400':
+          description: invalid requests
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+components:
+  schemas:
+    ReadingStats:
+      type: object
+      required:
+        - num_users
+        - max_age
+        - max_weight
+        - num_food_log
+        - max_calories
+      properties:
+        num_users:
+          type: integer
+          example: 100
+        max_age:
+          type: integer
+          example: 90
+        max_weight:
+          type: integer
+          example: 180
+        num_food_log:
+          type: integer
+          example: 100
+        max_calories:
+          type: integer
+          example: 6000

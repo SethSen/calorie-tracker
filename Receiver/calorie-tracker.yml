@@ -1,0 +1,132 @@
+openapi: 3.0.0
+info:
+  title: Calorie Tracking API
+  description: Application for health-conscious individuals who wish to track their dietary needs.
+  contact:
+    email: ssen1@my.bcit.ca
+  version: 1.0.0
+servers:
+- url: /
+tags:
+- name: record
+  description: Records Information about individual
+
+paths:
+  /personal-info:
+    post:
+      tags:
+        - record
+      summary: Receives personal information
+      description: Adds new personal information to the system to calculate and track macronutrient goals.
+      operationId: app.PersonalInfo
+      requestBody:
+        description: Personal info item to add
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonalInfo'
+      responses:
+        "201":
+          description: Item created
+        "400":
+          description: "Invalid input, object invalid"
+
+  /food-log:
+    post:
+      tags:
+        - record
+      summary: Adds a new entry to the personal food log
+      description: Adds a new food log entry to the system to track macronutrient and caloric intake.
+      operationId: app.FoodLog
+      requestBody:
+        description: Food log item to add
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FoodLog'
+      responses:
+        "201":
+          description: Item created
+        "400":
+          description: "Invalid input, object invalid"
+components:
+  schemas:
+    PersonalInfo:
+      required:
+        - activity_level
+        - age
+        - height
+        - nutritional_goal
+        - sex
+        - user_id
+        - weight
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 1
+        age:
+          type: integer
+          example: 30
+        sex:
+          type: string
+          example: female
+          enum:
+            - male
+            - female
+            - other
+        height:
+          type: integer
+          format: cm
+          example: 170
+        weight:
+          type: integer
+          format: kg
+          example: 65
+        activity_level:
+          type: string
+          example: Moderate
+        nutritional_goal:
+          type: string
+          example: Maintain weight
+    FoodLog:
+      required:
+        - user_id
+        - timestamp
+        - food_name
+        - quantity
+        - calories
+        - carbohydrates
+        - fats
+        - proteins
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 1
+        timestamp:
+          type: string
+          format: date-time
+          example: "07-09-2023:09:12"
+        food_name:
+          type: string
+          example: Banana
+        quantity:
+          type: integer
+          format: grams
+          example: 150
+        calories:
+          type: integer
+          example: 105
+        carbohydrates:
+          type: integer
+          format: grams
+          example: 27
+        fats:
+          type: integer
+          format: grams
+          example: 15
+        proteins:
+          type: integer
+          format: grams
+          example: 40

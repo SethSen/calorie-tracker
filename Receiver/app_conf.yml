@@ -1,0 +1,10 @@
+version: 1
+PersonalInfo:
+  url: http://localhost:8090/personal-info
+FoodLog:
+  url: http://localhost:8090/food-log
+
+events:
+  hostname: calorie-tracker.eastus2.cloudapp.azure.com
+  port: 9092
+  topic: events

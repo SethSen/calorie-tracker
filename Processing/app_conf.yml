@@ -1,0 +1,9 @@
+version: 1
+datastore:
+  filename: data.json
+scheduler:
+  period_sec: 5
+PersonalInfo:
+  url: http://localhost:8090/personal-info?timestamp=
+FoodLog:
+  url: http://localhost:8090/food-log?timestamp=

@@ -1,0 +1,178 @@
+openapi: 3.0.0
+info:
+  title: Calorie Tracking API
+  description: Application for health-conscious individuals who wish to track their dietary needs.
+  contact:
+    email: ssen1@my.bcit.ca
+  version: 1.0.0
+servers:
+  - url: /
+tags:
+- name: record
+  description: Record Information about individual
+
+
+paths:
+  /personal-info:
+    get:
+      tags:
+        - record
+      summary: Gets new personal info
+      description: Gets personal info readings added after a timestamp
+      operationId: app.get_personal_info
+      parameters:
+        - name: timestamp
+          in: query
+          description: Limits the number of items on a page
+          schema:
+            type: string
+            format: date-time
+          example: "2023-11-23T15:30:45Z"
+      responses:
+        '200':
+          description: Successfully returned a list of personal info events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PersonalInfo'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+
+
+  /food-log:
+    get:
+      tags:
+        - record
+      summary: Gets new food log
+      description: Gets food log readings added after a timestamp
+      operationId: app.get_food_log
+      parameters:
+        - name: timestamp
+          in: query
+          description: Limits the number of items on a page
+          schema:
+            type: string
+            format: date-time
+          example: "2023-11-23T15:30:45Z"
+      responses:
+        '200':
+          description: Successfully returned a list of food log events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FoodLog'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+
+components:
+  schemas:
+    PersonalInfo:
+      required:
+        - trace_id
+        - activity_level
+        - age
+        - height
+        - nutritional_goal
+        - sex
+        - user_id
+        - weight
+      type: object
+      properties:
+        trace_id:
+          type: string
+          format: uuid
+          example: 6fa459ea-ee8a-3ca4-894e-db77e160355e
+        user_id:
+          type: integer
+          example: 1
+        age:
+          type: integer
+          example: 30
+        sex:
+          type: string
+          example: female
+          enum:
+            - male
+            - female
+            - other
+        height:
+          type: integer
+          format: cm
+          example: 170
+        weight:
+          type: integer
+          format: kg
+          example: 65
+        activity_level:
+          type: string
+          example: Moderate
+        nutritional_goal:
+          type: string
+          example: Maintain weight
+
+    FoodLog:
+      required:
+        - trace_id
+        - user_id
+        - timestamp
+        - food_name
+        - quantity
+        - calories
+        - carbohydrates
+        - fats
+        - proteins
+      type: object
+      properties:
+        trace_id:
+          type: string
+          format: uuid
+          example: 6fa459ea-ee8a-3ca4-894e-db77e160355e
+        user_id:
+          type: integer
+          example: 1
+        timestamp:
+          type: string
+          format: date-time
+          example: 2023-11-23T15:30:45Z
+        food_name:
+          type: string
+          example: Banana
+        quantity:
+          type: integer
+          format: grams
+          example: 150
+        calories:
+          type: integer
+          example: 105
+        carbohydrates:
+          type: integer
+          format: grams
+          example: 27
+        fats:
+          type: integer
+          format: grams
+          example: 15
+        proteins:
+          type: integer
+          format: grams
+          example: 40
