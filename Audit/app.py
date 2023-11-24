@@ -86,4 +86,4 @@ app.add_api("calorie-tracker.yml")
 
 # Run the application if this script is executed as the main program
 if __name__ == "__main__":
-    app.run(port=8100)
+    app.run(port=8110)
