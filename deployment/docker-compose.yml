@@ -1,0 +1,95 @@
+version: '3.8'
+
+services:
+  audit:
+    build:
+      context: ./Audit
+      dockerfile: Dockerfile
+    ports:
+      - "8100:8100"
+    environment:
+      - EVENTS_HOSTNAME=calorie-tracker.eastus2.cloudapp.azure.com
+      - EVENTS_PORT=9092
+      - EVENTS_TOPIC=events
+    depends_on:
+      - kafka
+
+  processing:
+    build:
+      context: ./Processing
+      dockerfile: Dockerfile
+    ports:
+      - "8101:8100"
+    environment:
+      - PERSONAL_INFO_URL=http://localhost:8090/personal-info?timestamp=
+      - FOOD_LOG_URL=http://localhost:8090/food-log?timestamp=
+      - SCHEDULER_PERIOD_SEC=5
+    depends_on:
+      - receiver
+
+  receiver:
+    build:
+      context: ./Receiver
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - EVENTS_HOSTNAME=calorie-tracker.eastus2.cloudapp.azure.com
+      - EVENTS_PORT=9092
+      - EVENTS_TOPIC=events
+    depends_on:
+      - kafka
+
+  storage:
+    build:
+      context: ./Storage
+      dockerfile: Dockerfile
+    ports:
+      - "8090:8090"
+    environment:
+      - DB_USER=user
+      - DB_PASSWORD=password
+      - DB_HOSTNAME=calorie-tracker.eastus2.cloudapp.azure.com
+      - DB_PORT=3306
+      - DB_NAME=events
+      - EVENTS_HOSTNAME=calorie-tracker.eastus2.cloudapp.azure.com
+      - EVENTS_PORT=9092
+      - EVENTS_TOPIC=events
+    depends_on:
+      - kafka
+      - database
+
+  # Kafka service
+  kafka:
+    image: bitnami/kafka:latest
+    ports:
+      - "9092:9092"
+    environment:
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+    depends_on:
+      - zookeeper
+
+  # Zookeeper service for Kafka
+  zookeeper:
+    image: bitnami/zookeeper:latest
+    ports:
+      - "2181:2181"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+
+  # Database service
+  database:
+    image: mysql:5.7
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=events
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+      - MYSQL_ROOT_PASSWORD=rootpassword
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
