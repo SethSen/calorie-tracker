@@ -8,3 +8,6 @@ events:
   hostname: calorie-tracker.eastus2.cloudapp.azure.com
   port: 9092
   topic: events
+kafka:
+  max_retries: 5
+  sleep_time: 5

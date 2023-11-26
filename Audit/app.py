@@ -11,6 +11,7 @@ import requests
 import yaml
 import logging.config
 from pykafka import KafkaClient
+from flask_cors import CORS, cross_origin
 
 # Load application configuration from YAML file
 with open('app_conf.yml', 'r') as f:
@@ -82,7 +83,9 @@ def get_food_log(index):
 
 # Initialize Connexion, which integrates Flask with Swagger
 app = connexion.FlaskApp(__name__, specification_dir='')
-app.add_api("calorie-tracker.yml")
+CORS(app.app)
+app.app.config['CORS_HEADERS'] = 'Content-Type'
+app.add_api("calorie-tracker.yml", strict_validation = True, validate_responses=True)
 
 # Run the application if this script is executed as the main program
 if __name__ == "__main__":

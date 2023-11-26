@@ -1,9 +1,4 @@
-datastore:
-  user: user
-  password: password
-  hostname: calorie-tracker.eastus2.cloudapp.azure.com
-  port: 3306
-  db: events
+version: 1
 events:
   hostname: calorie-tracker.eastus2.cloudapp.azure.com
   port: 9092

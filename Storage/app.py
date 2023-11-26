@@ -12,6 +12,7 @@ import json
 from personal_info import PersonalInfo
 from food_log import FoodLog
 from base import Base
+import time
 
 # Load the configuration and logging
 with open('app_conf.yml', 'r') as f:
@@ -33,6 +34,23 @@ connection_str = f"mysql+pymysql://{user}:{password}@{hostname}:{port}/{db}"
 DB_ENGINE = create_engine(connection_str)
 Session = sessionmaker(bind=DB_ENGINE)
 Base.metadata.create_all(DB_ENGINE)
+
+max_retries = app_config["kafka"]["max_retries"]
+current_retry = 0
+while current_retry < max_retries:
+    try:
+        logger.info(f'Attempting to connect to Kafka. Retry count: {current_retry}')
+        hostname = f"{app_config['events']['hostname']}:{app_config['events']['port']}"
+        client = KafkaClient(hosts=hostname)
+        topic = client.topics[str.encode(app_config["events"]["topic"])]
+        break
+    except Exception as e:
+        logger.error(f'Connection to Kafka failed. Error:{str(e)}')
+        sleep_time = app_config['kafka']['sleep_time']
+        time.sleep(sleep_time)
+        current_retry +=1
+else:
+    logger.error("Max Retries reached. Could not connect to Kafka")
 
 def get_personal_info(timestamp):
     """ Gets new personal info readings after the timestamp """

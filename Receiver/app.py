@@ -6,6 +6,7 @@ import uuid
 from pykafka import KafkaClient
 import datetime
 import json
+import time
 
 # Load application configuration from 'app_conf.yml'
 with open('app_conf.yml', 'r') as f:
@@ -18,6 +19,22 @@ with open('log_conf.yml', 'r') as f:
 
 # Initialize the logger with the specified configuration
 logger = logging.getLogger('basicLogger')
+max_retries = app_config["kafka"]["max_retries"]
+current_retry = 0
+while current_retry < max_retries:
+    try:
+        logger.info(f'Attempting to create Kafka Client. Retry count: {current_retry}')
+        client = KafkaClient(hosts=f'{app_config["events"]["hostname"]}:{app_config["events"]["port"]}')
+        topic = client.topics[str.encode(app_config['events']['topic'])]
+        logger.info(f'Succesful connection')
+        break
+    except Exception as e:
+        logger.error(f'Kafka creation failed. Error:{str(e)}')
+        sleep_time = app_config['kafka']['sleep_time']
+        time.sleep(sleep_time)
+        current_retry +=1
+else:
+    logger.error("Max Retries reached. Could not connect to Kafka")
 
 def generate_trace_id():
     """Generate a unique trace ID using UUID4 for correlating events across different systems."""
