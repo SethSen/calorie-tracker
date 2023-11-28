@@ -6,7 +6,3 @@ scheduler:
 eventstore:
   url: http://localhost:8090
 
-# PersonalInfo:
-#   url: http://localhost:8090/personal-info?timestamp=
-# FoodLog:
-#   url: http://localhost:8090/food-log?timestamp=
