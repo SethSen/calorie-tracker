@@ -5,8 +5,7 @@ export default function EndpointAudit(props) {
     const [isLoaded, setIsLoaded] = useState(false);
     const [log, setLog] = useState(null);
     const [error, setError] = useState(null)
-	const rand_val = Math.floor(Math.random() * 100); // Get a random event from the event store
-    const [index, setIndex] = useState(null);
+	const rand_val = Math.floor(Math.random() * 50); // Get a random event from the event store
 
     const getAudit = () => {
         fetch(`http://calorie-tracker.eastus2.cloudapp.azure.com:8110/${props.endpoint}?index=${rand_val}`)
@@ -14,9 +13,7 @@ export default function EndpointAudit(props) {
             .then((result)=>{
 				console.log("Received Audit Results for " + props.endpoint)
                 setLog(result);
-                setIndex(rand_val);
                 setIsLoaded(true);
-                console.log(index);
             },(error) =>{
                 setError(error)
                 setIsLoaded(true);
