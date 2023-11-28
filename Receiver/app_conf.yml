@@ -9,6 +9,6 @@ events:
   port: 9092
   topic: events
 
-kafka:
-  max_retries: 5
-  sleep_time: 5
+# kafka:
+#   max_retries: 5
+#   sleep_time: 5
