@@ -29,11 +29,10 @@ export default function EndpointAudit(props) {
     } else if (isLoaded === false){
         return(<div>Loading...</div>)
     } else if (isLoaded === true){
-        console.log('index at a later time' + index)
-        
+
         return (
             <div>
-                <h3>{props.endpoint}-{index}</h3>
+                <h3>{props.endpoint}-{rand_val}</h3>
                 {JSON.stringify(log)}
             </div>
         )
