@@ -35,10 +35,8 @@ def get_stats():
 
 def populate_stats():
     if os.path.isfile(app_config['datastore']['filename']):
-        f = open(app_config['datastore']['filename'])
-        f_content = f.read()
-        current_stats = json.loads(f_content)
-        f.close()
+        with open(app_config['datastore']['filename']) as f:
+            current_stats = json.loads(f.read())
     else:
         current_stats = {
             'num_users': 0,
@@ -52,62 +50,42 @@ def populate_stats():
     logger.info("Start Periodic Processing")
     personal_info_url = requests.get(f"{app_config['eventstore']['url']}/personal-info", params={'timestamp':current_stats['last_updated']})
     food_log_url = requests.get(f"{app_config['eventstore']['url']}/food-log", params={'timestamp':current_stats['last_updated']})
-    logger.info(f"There have been {len(personal_info_url.json())} personal info logs and {len(food_log_url.json())} food logs since {current_stats['last_updated']}")
     
-    if personal_info_url.status_code != 200:
-        logger.error(f'Error from personal info received: {personal_info_url.status_code}')
-    elif food_log_url.status_code != 200:
-        logger.error(f'Error from food log received: {food_log_url.status_code}')
+    if personal_info_url.status_code != 200 or food_log_url.status_code != 200:
+        logger.error('Error from personal info or food log received')
+        return  # Exit the function if there's an error
 
     personal_info_response = personal_info_url.json()
     food_log_response = food_log_url.json()
 
+    logger.info(f"There have been {len(personal_info_response)} personal info logs and {len(food_log_response)} food logs since {current_stats['last_updated']}")
 
-    if len(personal_info_response):
-        max_age = max(
-            [
-                current_stats['max_age'],
-                max([float(i["age"]) for i in personal_info_response])
-            ]
-        )
-        max_weight = max(
-            [
-                current_stats['max_weight'],
-                max([float(i['weight']) for i in personal_info_response])
-            ]
-        )
-    else: 
-        max_age = current_stats['max_age']
-        max_weight = current_stats['max_weight']
-        
-    if len(food_log_response):
-        max_calories = max(
-            [
-                current_stats['max_calories'],
-                max([float(i['calories']) for i in food_log_response])
-            ]
-        )
-    else:
-        max_calories = current_stats['max_calories']
+    # Update max_age and num_users based on new data
+    new_max_age = max([float(i["age"]) for i in personal_info_response], default=current_stats['max_age'])
+    new_num_users = current_stats['num_users'] + len(personal_info_response)
 
+    # Update max_weight and max_calories if new data is available
+    new_max_weight = max([float(i['weight']) for i in personal_info_response], default=current_stats['max_weight'])
+    new_max_calories = max([float(i['calories']) for i in food_log_response], default=current_stats['max_calories'])
 
     now = datetime.datetime.now()
     timestamp = now.strftime('%Y-%m-%dT%H:%M:%SZ')
 
-    data = {
-        'num_users': current_stats['num_users']+len(personal_info_response),
-        'max_age': max_age,
-        'max_weight': max_weight,
-        'num_food_log': current_stats['num_food_log']+len(food_log_response),
-        'max_calories': max_calories,
+    updated_stats = {
+        'num_users': new_num_users,
+        'max_age': new_max_age,
+        'max_weight': new_max_weight,
+        'num_food_log': current_stats['num_food_log'] + len(food_log_response),
+        'max_calories': new_max_calories,
         'last_updated': timestamp
     }
 
-    f = open(app_config['datastore']['filename'], 'w')
-    f.write(json.dumps(data))
-    f.close()
-    logger.debug(f"The current data is {data}")
-    logger.info(f"Processing period ended")
+    with open(app_config['datastore']['filename'], 'w') as f:
+        f.write(json.dumps(updated_stats))
+
+    logger.debug(f"The current data is {updated_stats}")
+    logger.info("Processing period ended")
+
 
 
 def init_scheduler():
