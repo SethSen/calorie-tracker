@@ -19,22 +19,28 @@ with open('log_conf.yml', 'r') as f:
 
 # Initialize the logger with the specified configuration
 logger = logging.getLogger('basicLogger')
-max_retries = app_config["kafka"]["max_retries"]
-current_retry = 0
-while current_retry < max_retries:
-    try:
-        logger.info(f'Attempting to create Kafka Client. Retry count: {current_retry}')
-        client = KafkaClient(hosts=f'{app_config["events"]["hostname"]}:{app_config["events"]["port"]}')
-        topic = client.topics[str.encode(app_config['events']['topic'])]
-        logger.info(f'Succesful connection')
-        break
-    except Exception as e:
-        logger.error(f'Kafka creation failed. Error:{str(e)}')
-        sleep_time = app_config['kafka']['sleep_time']
-        time.sleep(sleep_time)
-        current_retry +=1
-else:
-    logger.error("Max Retries reached. Could not connect to Kafka")
+
+def get_kafka():
+    retry_count = 0
+    max_retries = app_config['kafka']['max_retries']
+    sleep_time = app_config['kafka']['sleep_time']
+
+    while retry_count < max_retries:
+        try:
+            logger.info(f"Trying to connect to Kafka, attempt {retry_count+1}")
+            client = KafkaClient(hosts=f"{app_config['events']['hostname']}:{app_config['events']['port']}")
+            kafka_topic = client.topics[str.encode(app_config['events']['topic'])]
+            producer = kafka_topic.get_sync_producer()
+            logger.info("Connected to Kafka successfully")
+            return client, producer
+            
+        except Exception as e:
+            logger.error(f"Connection to Kafka failed: {str(e)}")
+            time.sleep(sleep_time)
+            retry_count += 1
+    raise Exception("Failed to connect to Kafka after retries")
+
+client, producer = get_kafka()
 
 def generate_trace_id():
     """Generate a unique trace ID using UUID4 for correlating events across different systems."""
@@ -42,12 +48,12 @@ def generate_trace_id():
 
 def send_kafka(event_type, body):
     """Send an event to a specified Kafka topic."""
-    logger.info(f"Sending {event_type} event to Kafka")
+    # logger.info(f"Sending {event_type} event to Kafka")
     # Set up Kafka client
-    host = f"{app_config['events']['hostname']}:{app_config['events']['port']}"
-    client = KafkaClient(hosts=host)
-    topic = client.topics[str.encode(app_config['events']['topic'])]
-    producer = topic.get_sync_producer()
+    # host = f"{app_config['events']['hostname']}:{app_config['events']['port']}"
+    # client = KafkaClient(hosts=host)
+    # topic = client.topics[str.encode(app_config['events']['topic'])]
+    # producer = topic.get_sync_producer()
 
     # Create the message with event details
     msg = {
