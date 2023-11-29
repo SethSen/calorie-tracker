@@ -35,44 +35,6 @@ DB_ENGINE = create_engine(connection_str)
 Session = sessionmaker(bind=DB_ENGINE)
 Base.metadata.create_all(DB_ENGINE)
 
-
-def get_personal_info(start_timestamp, end_timestamp):
-    """ Gets personal info readings between start and end timestamps """
-    session = Session()
-    try:
-        start_timestamp_datetime = datetime.datetime.strptime(start_timestamp, "%Y-%m-%dT%H:%M:%SZ")
-        end_timestamp_datetime = datetime.datetime.strptime(end_timestamp, "%Y-%m-%dT%H:%M:%SZ")
-    except ValueError as e:
-        logger.error(f"Error parsing timestamp: {e}")
-        return {"message": "Invalid timestamp format"}, 400
-
-    if start_timestamp_datetime >= end_timestamp_datetime:
-        return {"message": "Start timestamp must be earlier than end timestamp"}, 400
-
-    readings = session.query(PersonalInfo).filter(PersonalInfo.date_created >= start_timestamp_datetime, PersonalInfo.date_created < end_timestamp_datetime)
-    results_list = [reading.to_dict() for reading in readings]
-    session.close()
-    return results_list, 200
-
-def get_food_log(start_timestamp, end_timestamp):
-    """ Gets food log readings between start and end timestamps """
-    session = Session()
-    try:
-        start_timestamp_datetime = datetime.datetime.strptime(start_timestamp, "%Y-%m-%dT%H:%M:%SZ")
-        end_timestamp_datetime = datetime.datetime.strptime(end_timestamp, "%Y-%m-%dT%H:%M:%SZ")
-    except ValueError as e:
-        logger.error(f"Error parsing timestamp: {e}")
-        return {"message": "Invalid timestamp format"}, 400
-
-    if start_timestamp_datetime >= end_timestamp_datetime:
-        return {"message": "Start timestamp must be earlier than end timestamp"}, 400
-
-    readings = session.query(FoodLog).filter(FoodLog.date_created >= start_timestamp_datetime, FoodLog.date_created < end_timestamp_datetime)
-    results_list = [reading.to_dict() for reading in readings]
-    session.close()
-    return results_list, 200
-
-
 def process_messages():
     """ Process event messages """
     max_retries = app_config['kafka']['max_retries']
@@ -147,6 +109,43 @@ def process_messages():
 
             consumer.commit_offsets()
 
+
+
+def get_personal_info(start_timestamp, end_timestamp):
+    """ Gets personal info readings between start and end timestamps """
+    session = Session()
+    try:
+        start_timestamp_datetime = datetime.datetime.strptime(start_timestamp, "%Y-%m-%dT%H:%M:%SZ")
+        end_timestamp_datetime = datetime.datetime.strptime(end_timestamp, "%Y-%m-%dT%H:%M:%SZ")
+    except ValueError as e:
+        logger.error(f"Error parsing timestamp: {e}")
+        return {"message": "Invalid timestamp format"}, 400
+
+    if start_timestamp_datetime >= end_timestamp_datetime:
+        return {"message": "Start timestamp must be earlier than end timestamp"}, 400
+
+    readings = session.query(PersonalInfo).filter(PersonalInfo.date_created >= start_timestamp_datetime, PersonalInfo.date_created < end_timestamp_datetime)
+    results_list = [reading.to_dict() for reading in readings]
+    session.close()
+    return results_list, 200
+
+def get_food_log(start_timestamp, end_timestamp):
+    """ Gets food log readings between start and end timestamps """
+    session = Session()
+    try:
+        start_timestamp_datetime = datetime.datetime.strptime(start_timestamp, "%Y-%m-%dT%H:%M:%SZ")
+        end_timestamp_datetime = datetime.datetime.strptime(end_timestamp, "%Y-%m-%dT%H:%M:%SZ")
+    except ValueError as e:
+        logger.error(f"Error parsing timestamp: {e}")
+        return {"message": "Invalid timestamp format"}, 400
+
+    if start_timestamp_datetime >= end_timestamp_datetime:
+        return {"message": "Start timestamp must be earlier than end timestamp"}, 400
+
+    readings = session.query(FoodLog).filter(FoodLog.date_created >= start_timestamp_datetime, FoodLog.date_created < end_timestamp_datetime)
+    results_list = [reading.to_dict() for reading in readings]
+    session.close()
+    return results_list, 200
 
 
 # Flask App Setup
