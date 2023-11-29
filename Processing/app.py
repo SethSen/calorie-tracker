@@ -9,25 +9,50 @@ import json
 import os
 from flask_cors import CORS, cross_origin
 
-# Load application configuration from 'app_conf.yml'
-with open('app_conf.yml', 'r') as f:
-    app_config = yaml.safe_load(f.read())
+if "TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test":
+    print("In Test Environment")
+    app_conf_file = "/config/app_conf.yml"
+    log_conf_file = "/config/log_conf.yml"
+else:
+    print("In Dev Environment")
+    app_conf_file = "app_conf.yml"
+    log_conf_file = "log_conf.yml"
+with open(app_conf_file, 'r') as f:
+   app_config = yaml.safe_load(f.read())
 
-# Load logging configuration from 'log_conf.yml'
-with open('log_conf.yml', 'r') as f:
+with open(log_conf_file, 'r') as f:
     log_config = yaml.safe_load(f.read())
     logging.config.dictConfig(log_config)
 
-# Initialize logger
 logger = logging.getLogger('basicLogger')
+
+logger.info("App COnf File: %s" % app_conf_file)
+logger.info("Log Conf File: %s" % log_conf_file)
+    
+if os.path.isfile(app_config['datastore']['filename']):
+        f = open(app_config['datastore']['filename'])
+        f_content = f.read()
+        current_stats = json.loads(f_content)
+        f.close()
+else:
+    current_stats = {
+            'num_users': 0,
+            'max_age': 0,
+            'max_weight': 0,
+            'num_food_log': 0,
+            'max_calories': 0,
+            'last_updated': "2000-01-01T00:00:00Z"}
+    file_path = app_config['datastore']['filename']
+    with open(file_path, 'w') as data_json:
+        json.dump(current_stats, data_json, indent=4)
 
 def get_stats():
     if os.path.isfile(app_config['datastore']['filename']):
         f = open(app_config['datastore']['filename'])
         f_content = f.read()
-        json_object = json.loads(f_content)
+        current_stats = json.loads(f_content)
         f.close()
-        return json_object, 201
+        return current_stats, 201
     else:
         logger.error("File does not exist")
         return "stats do not exist", 404

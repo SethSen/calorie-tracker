@@ -13,25 +13,29 @@ from personal_info import PersonalInfo
 from food_log import FoodLog
 from base import Base
 import time
+import os
 
-# Load the configuration and logging
-with open('app_conf.yml', 'r') as f:
-    app_config = yaml.safe_load(f.read())
+if "TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test":
+    print("In Test Environment")
+    app_conf_file = "/config/app_conf.yml"
+    log_conf_file = "/config/log_conf.yml"
+else:
+    print("In Dev Environment")
+    app_conf_file = "app_conf.yml"
+    log_conf_file = "log_conf.yml"
+with open(app_conf_file, 'r') as f:
+   app_config = yaml.safe_load(f.read())
 
-with open('log_conf.yml', 'r') as f:
+with open(log_conf_file, 'r') as f:
     log_config = yaml.safe_load(f.read())
     logging.config.dictConfig(log_config)
 
 logger = logging.getLogger('basicLogger')
 
-# Database setup
-user = app_config['datastore']['user']
-password = app_config['datastore']['password']
-hostname = app_config['datastore']['hostname']
-port = app_config['datastore']['port']
-db = app_config['datastore']['db']
-connection_str = f"mysql+pymysql://{user}:{password}@{hostname}:{port}/{db}"
-DB_ENGINE = create_engine(connection_str)
+logger.info("App Conf File: %s" % app_conf_file)
+logger.info("Log Conf File: %s" % log_conf_file)
+
+DB_ENGINE = create_engine(f"mysql+pymysql://{app_config['datastore']['user']}:{app_config['datastore']['password']}@{app_config['datastore']['hostname']}:{app_config['datastore']['port']}/{app_config['datastore']['db']}")
 Session = sessionmaker(bind=DB_ENGINE)
 Base.metadata.create_all(DB_ENGINE)
 

@@ -7,18 +7,27 @@ from pykafka import KafkaClient
 import datetime
 import json
 import time
+import os
 
-# Load application configuration from 'app_conf.yml'
-with open('app_conf.yml', 'r') as f:
-    app_config = yaml.safe_load(f.read())
+if "TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test":
+    print("In Test Environment")
+    app_conf_file = "/config/app_conf.yml"
+    log_conf_file = "/config/log_conf.yml"
+else:
+    print("In Dev Environment")
+    app_conf_file = "app_conf.yml"
+    log_conf_file = "log_conf.yml"
+with open(app_conf_file, 'r') as f:
+   app_config = yaml.safe_load(f.read())
 
-# Load logging configuration from 'log_conf.yml'
-with open('log_conf.yml', 'r') as f:
+with open(log_conf_file, 'r') as f:
     log_config = yaml.safe_load(f.read())
     logging.config.dictConfig(log_config)
 
-# Initialize the logger with the specified configuration
 logger = logging.getLogger('basicLogger')
+
+logger.info("App COnf File: %s" % app_conf_file)
+logger.info("Log Conf File: %s" % log_conf_file)
 
 def get_kafka():
     retry_count = 0
@@ -48,14 +57,7 @@ def generate_trace_id():
 
 def send_kafka(event_type, body):
     """Send an event to a specified Kafka topic."""
-    # logger.info(f"Sending {event_type} event to Kafka")
-    # Set up Kafka client
-    # host = f"{app_config['events']['hostname']}:{app_config['events']['port']}"
-    # client = KafkaClient(hosts=host)
-    # topic = client.topics[str.encode(app_config['events']['topic'])]
-    # producer = topic.get_sync_producer()
 
-    # Create the message with event details
     msg = {
         "type": event_type,
         "datetime": datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
