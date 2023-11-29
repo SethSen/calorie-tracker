@@ -47,7 +47,7 @@ def populate_stats():
             'last_updated': "2000-01-01T00:00:00Z"
         }
     
-    current_timestamp = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+    current_timestamp = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
     last_updated = current_stats['last_updated']
 
     logger.info("Start Periodic Processing")
