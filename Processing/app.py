@@ -47,14 +47,15 @@ def populate_stats():
             'last_updated': "2000-01-01T00:00:00Z"
         }
     
-    current_timestamp = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
-    last_updated = current_stats['last_updated']
+    now = datetime.datetime.now()
+    timestamp = now.strftime('%Y-%m-%dT%H:%M:%SZ')
 
     logger.info("Start Periodic Processing")
-
-    personal_info_url = requests.get(f"{app_config['eventstore']['url']}/personal-info?timestamp={last_updated}&end_timestamp={current_timestamp}")
-    food_log_url = requests.get(f"{app_config['eventstore']['url']}/food-log?timestamp={last_updated}&end_timestamp={current_timestamp}")
     
+    personal_info_url = requests.get(f"{app_config['eventstore']['url']}/personal-info", params={'timestamp':current_stats['last_updated'], 'end_timestamp': timestamp})
+    food_log_url = requests.get(f"{app_config['eventstore']['url']}/food-log", params={'timestamp':current_stats['last_updated'], 'end_timestamp': timestamp})
+    logger.info(f"There have been {len(personal_info_response.json())} personal info logs and {len(food_log_url.json())} food logged since {current_stats['last_updated']}")
+
     if personal_info_url.status_code != 200 or food_log_url.status_code != 200:
         logger.error('Error from personal info or food log received')
         return  # Exit the function if there's an error
@@ -76,7 +77,7 @@ def populate_stats():
         'max_weight': new_max_weight,
         'num_food_log': current_stats['num_food_log'] + len(food_log_response),
         'max_calories': new_max_calories,
-        'last_updated': current_timestamp
+        'last_updated': timestamp
     }
 
     with open(app_config['datastore']['filename'], 'w') as f:
