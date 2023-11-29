@@ -54,7 +54,7 @@ def populate_stats():
     
     personal_info_url = requests.get(f"{app_config['eventstore']['url']}/personal-info", params={'timestamp':current_stats['last_updated'], 'end_timestamp': timestamp})
     food_log_url = requests.get(f"{app_config['eventstore']['url']}/food-log", params={'timestamp':current_stats['last_updated'], 'end_timestamp': timestamp})
-    logger.info(f"There have been {len(personal_info_response.json())} personal info logs and {len(food_log_url.json())} food logged since {current_stats['last_updated']}")
+    logger.info(f"There have been {len(personal_info_url.json())} personal info logs and {len(food_log_url.json())} food logged since {current_stats['last_updated']}")
 
     if personal_info_url.status_code != 200 or food_log_url.status_code != 200:
         logger.error('Error from personal info or food log received')
