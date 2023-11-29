@@ -21,13 +21,22 @@ paths:
       description: Gets personal info readings added after a timestamp
       operationId: app.get_personal_info
       parameters:
-        - name: timestamp
+        - name: start_timestamp
           in: query
-          description: Limits the number of items on a page
+          description: Start time for filtering the personal info events
+          required: true
           schema:
             type: string
             format: date-time
           example: "2023-11-23T15:30:45Z"
+        - name: end_timestamp
+          in: query
+          description: End time for filtering the personal info events
+          required: true
+          schema:
+            type: string
+            format: date-time
+          example: "2023-11-23T17:30:45Z"
       responses:
         '200':
           description: Successfully returned a list of personal info events
@@ -57,13 +66,22 @@ paths:
       description: Gets food log readings added after a timestamp
       operationId: app.get_food_log
       parameters:
-        - name: timestamp
+        - name: start_timestamp
           in: query
-          description: Limits the number of items on a page
+          description: Start time for filtering the food log events
+          required: true
           schema:
             type: string
             format: date-time
           example: "2023-11-23T15:30:45Z"
+        - name: end_timestamp
+          in: query
+          description: End time for filtering the food log events
+          required: true
+          schema:
+            type: string
+            format: date-time
+          example: "2023-11-23T17:30:45Z"
       responses:
         '200':
           description: Successfully returned a list of food log events

@@ -46,19 +46,22 @@ def populate_stats():
             'max_calories': 0,
             'last_updated': "2000-01-01T00:00:00Z"
         }
+    
+    now = datetime.datetime.now()
+    timestamp = now.strftime('%Y-%m-%dT%H:%M:%SZ')
 
     logger.info("Start Periodic Processing")
-    personal_info_url = requests.get(f"{app_config['eventstore']['url']}/personal-info", params={'timestamp':current_stats['last_updated']})
-    food_log_url = requests.get(f"{app_config['eventstore']['url']}/food-log", params={'timestamp':current_stats['last_updated']})
+    personal_info_url = requests.get(f"{app_config['eventstore']['url']}/personal-info", params={'timestamp':current_stats['last_updated'], 'end_timestamp': timestamp})
+    food_log_url = requests.get(f"{app_config['eventstore']['url']}/food-log", params={'timestamp':current_stats['last_updated'], 'end_timestamp': timestamp})
     
+    logger.info(f"There have been {len(personal_info_response)} personal info logs and {len(food_log_response)} food logs since {current_stats['last_updated']}")
+
     if personal_info_url.status_code != 200 or food_log_url.status_code != 200:
         logger.error('Error from personal info or food log received')
         return  # Exit the function if there's an error
 
     personal_info_response = personal_info_url.json()
     food_log_response = food_log_url.json()
-
-    logger.info(f"There have been {len(personal_info_response)} personal info logs and {len(food_log_response)} food logs since {current_stats['last_updated']}")
 
     # Update max_age and num_users based on new data
     new_max_age = max([float(i["age"]) for i in personal_info_response], default=current_stats['max_age'])
@@ -67,9 +70,6 @@ def populate_stats():
     # Update max_weight and max_calories if new data is available
     new_max_weight = max([float(i['weight']) for i in personal_info_response], default=current_stats['max_weight'])
     new_max_calories = max([float(i['calories']) for i in food_log_response], default=current_stats['max_calories'])
-
-    now = datetime.datetime.now()
-    timestamp = now.strftime('%Y-%m-%dT%H:%M:%SZ')
 
     updated_stats = {
         'num_users': new_num_users,

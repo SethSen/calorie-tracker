@@ -35,50 +35,59 @@ DB_ENGINE = create_engine(connection_str)
 Session = sessionmaker(bind=DB_ENGINE)
 Base.metadata.create_all(DB_ENGINE)
 
-# max_retries = app_config["kafka"]["max_retries"]
-# current_retry = 0
-# while current_retry < max_retries:
-#     try:
-#         logger.info(f'Attempting to connect to Kafka. Retry count: {current_retry}')
-#         hostname = f"{app_config['events']['hostname']}:{app_config['events']['port']}"
-#         client = KafkaClient(hosts=hostname)
-#         topic = client.topics[str.encode(app_config["events"]["topic"])]
-#         break
-#     except Exception as e:
-#         logger.error(f'Connection to Kafka failed. Error:{str(e)}')
-#         sleep_time = app_config['kafka']['sleep_time']
-#         time.sleep(sleep_time)
-#         current_retry +=1
-# else:
-#     logger.error("Max Retries reached. Could not connect to Kafka")
+max_retries = app_config["kafka"]["max_retries"]
+current_retry = 0
+while current_retry < max_retries:
+    try:
+        logger.info(f'Attempting to connect to Kafka. Retry count: {current_retry}')
+        hostname = f"{app_config['events']['hostname']}:{app_config['events']['port']}"
+        client = KafkaClient(hosts=hostname)
+        topic = client.topics[str.encode(app_config["events"]["topic"])]
+        break
+    except Exception as e:
+        logger.error(f'Connection to Kafka failed. Error:{str(e)}')
+        sleep_time = app_config['kafka']['sleep_time']
+        time.sleep(sleep_time)
+        current_retry +=1
+else:
+    logger.error("Max Retries reached. Could not connect to Kafka")
 
-def get_personal_info(timestamp):
-    """ Gets new personal info readings after the timestamp """
+def get_personal_info(start_timestamp, end_timestamp):
+    """ Gets personal info readings between start and end timestamps """
     session = Session()
     try:
-        timestamp_datetime = datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ")
+        start_timestamp_datetime = datetime.datetime.strptime(start_timestamp, "%Y-%m-%dT%H:%M:%SZ")
+        end_timestamp_datetime = datetime.datetime.strptime(end_timestamp, "%Y-%m-%dT%H:%M:%SZ")
     except ValueError as e:
         logger.error(f"Error parsing timestamp: {e}")
         return {"message": "Invalid timestamp format"}, 400
-    readings = session.query(PersonalInfo).filter(PersonalInfo.date_created >= timestamp_datetime)
 
+    if start_timestamp_datetime >= end_timestamp_datetime:
+        return {"message": "Start timestamp must be earlier than end timestamp"}, 400
+
+    readings = session.query(PersonalInfo).filter(PersonalInfo.date_created >= start_timestamp_datetime, PersonalInfo.date_created < end_timestamp_datetime)
     results_list = [reading.to_dict() for reading in readings]
     session.close()
     return results_list, 200
 
-def get_food_log(timestamp):
-    """ Gets new food log readings after the timestamp """
+def get_food_log(start_timestamp, end_timestamp):
+    """ Gets food log readings between start and end timestamps """
     session = Session()
     try:
-        timestamp_datetime = datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ")
+        start_timestamp_datetime = datetime.datetime.strptime(start_timestamp, "%Y-%m-%dT%H:%M:%SZ")
+        end_timestamp_datetime = datetime.datetime.strptime(end_timestamp, "%Y-%m-%dT%H:%M:%SZ")
     except ValueError as e:
         logger.error(f"Error parsing timestamp: {e}")
         return {"message": "Invalid timestamp format"}, 400
-    readings = session.query(FoodLog).filter(FoodLog.date_created >= timestamp_datetime)
 
+    if start_timestamp_datetime >= end_timestamp_datetime:
+        return {"message": "Start timestamp must be earlier than end timestamp"}, 400
+
+    readings = session.query(FoodLog).filter(FoodLog.date_created >= start_timestamp_datetime, FoodLog.date_created < end_timestamp_datetime)
     results_list = [reading.to_dict() for reading in readings]
     session.close()
     return results_list, 200
+
 
 def process_messages():
     """ Process incoming Kafka messages """
