@@ -76,7 +76,7 @@ def populate_stats():
         'max_weight': new_max_weight,
         'num_food_log': current_stats['num_food_log'] + len(food_log_response),
         'max_calories': new_max_calories,
-        'last_updated': last_updated
+        'last_updated': current_timestamp
     }
 
     with open(app_config['datastore']['filename'], 'w') as f:
