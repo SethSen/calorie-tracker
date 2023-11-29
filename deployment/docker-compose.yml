@@ -54,7 +54,7 @@ services:
       - TARGET_ENV=test
     volumes:
       - /home/seth/config/receiver:/config
-      # - /home/seth/logs:/logs
+      - /home/seth/logs:/logs
     depends_on:
       - "kafka"
 
@@ -66,7 +66,7 @@ services:
       - TARGET_ENV=test
     volumes:
       - /home/seth/config/storage:/config
-      # - /home/seth/logs:/logs
+      - /home/seth/logs:/logs
     depends_on:
       - "kafka"
 
@@ -79,8 +79,8 @@ services:
       - TARGET_ENV=test
     volumes:
       - /home/seth/config/processing:/config
-      # - /home/seth/logs:/logs
-      # - processing-db:/data
+      - /home/seth/logs:/logs
+      - processing-db:/data
     depends_on:
       - "storage"
 
@@ -92,7 +92,7 @@ services:
       - TARGET_ENV=test
     volumes:
       - /home/seth/config/audit:/config
-      # - /home/seth/logs:/logs
+      - /home/seth/logs:/logs
     depends_on:
       - "kafka"
 
@@ -106,4 +106,4 @@ services:
 
 volumes:
   my-db:
-  # processing-db:
+  processing-db:
