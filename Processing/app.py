@@ -9,6 +9,7 @@ import json
 import os
 from flask_cors import CORS, cross_origin
 
+# Check environment and load configuration files
 if "TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test":
     print("In Test Environment")
     app_conf_file = "/config/app_conf.yml"
@@ -17,8 +18,12 @@ else:
     print("In Dev Environment")
     app_conf_file = "app_conf.yml"
     log_conf_file = "log_conf.yml"
+    app = connexion.FlaskApp(__name__, specification_dir='')
+    CORS(app.app)
+    app.app.config['CORS_HEADERS'] = 'Content-Type'
+
 with open(app_conf_file, 'r') as f:
-   app_config = yaml.safe_load(f.read())
+    app_config = yaml.safe_load(f.read())
 
 with open(log_conf_file, 'r') as f:
     log_config = yaml.safe_load(f.read())
@@ -26,22 +31,23 @@ with open(log_conf_file, 'r') as f:
 
 logger = logging.getLogger('basicLogger')
 
-logger.info("App COnf File: %s" % app_conf_file)
+logger.info("App Conf File: %s" % app_conf_file)
 logger.info("Log Conf File: %s" % log_conf_file)
-    
+
+# Check for existing data file and initialize it if necessary
 if os.path.isfile(app_config['datastore']['filename']):
-        f = open(app_config['datastore']['filename'])
-        f_content = f.read()
-        current_stats = json.loads(f_content)
-        f.close()
+    f = open(app_config['datastore']['filename'])
+    f_content = f.read()
+    current_stats = json.loads(f_content)
+    f.close()
 else:
     current_stats = {
-            'num_users': 0,
-            'max_age': 0,
-            'max_weight': 0,
-            'num_food_log': 0,
-            'max_calories': 0,
-            'last_updated': "2000-01-01T00:00:00Z"}
+        'num_users': 0,
+        'max_age': 0,
+        'max_weight': 0,
+        'num_food_log': 0,
+        'max_calories': 0,
+        'last_updated': "2000-01-01T00:00:00Z"}
     file_path = app_config['datastore']['filename']
     with open(file_path, 'w') as data_json:
         json.dump(current_stats, data_json, indent=4)
@@ -119,10 +125,12 @@ def init_scheduler():
     sched.start()
 
 # Initialize and configure the Connexion application
-app = connexion.FlaskApp(__name__, specification_dir='')
-CORS(app.app)
-app.app.config['CORS_HEADERS'] = 'Content-Type'
-app.add_api('calorie-tracker.yml', strict_validation=True, validate_responses=True)
+if not ("TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test"):
+    app = connexion.FlaskApp(__name__, specification_dir='')
+    CORS(app.app)
+    app.app.config['CORS_HEADERS'] = 'Content-Type'
+
+app.add_api("calorie-tracker.yml", base_path="/processing", strict_validation=True, validate_responses=True)
 
 if __name__ == "__main__":
     init_scheduler()

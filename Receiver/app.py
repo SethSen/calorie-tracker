@@ -87,7 +87,7 @@ def FoodLog(body):
 # Initialize Connexion app to integrate Flask with Swagger
 app = connexion.FlaskApp(__name__, specification_dir='')
 # Add API with validation options
-app.add_api("calorie-tracker.yml", strict_validation=True, validate_responses=True)
+app.add_api("calorie-tracker.yml", base_path="/receiver", strict_validation=True, validate_responses=True)
 
 # Run the application if the script is the main program
 if __name__ == "__main__":

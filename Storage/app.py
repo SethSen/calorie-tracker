@@ -151,7 +151,8 @@ def get_food_log(start_timestamp, end_timestamp):
 
 # Flask App Setup
 app = connexion.FlaskApp(__name__, specification_dir='')
-app.add_api("calorie-tracker.yml", strict_validation=True, validate_responses=True)
+
+app.add_api("calorie-tracker.yml", base_path="/storage", strict_validation=True, validate_responses=True)
 
 # Thread for Kafka
 def start_kafka_thread():
