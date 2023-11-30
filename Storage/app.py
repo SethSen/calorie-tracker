@@ -36,8 +36,8 @@ logger.info("App Conf File: %s" % app_conf_file)
 logger.info("Log Conf File: %s" % log_conf_file)
 
 DB_ENGINE = create_engine(f"mysql+pymysql://{app_config['datastore']['user']}:{app_config['datastore']['password']}@{app_config['datastore']['hostname']}:{app_config['datastore']['port']}/{app_config['datastore']['db']}")
-Base.metadata.create_all(DB_ENGINE)
 Session = sessionmaker(bind=DB_ENGINE)
+Base.metadata.create_all(DB_ENGINE)
 
 max_retries = app_config["kafka"]["max_retries"]
 current_retry = 0
@@ -149,17 +149,13 @@ def get_food_log(start_timestamp, end_timestamp):
     return results_list, 200
 
 
-# Flask App Setup
 app = connexion.FlaskApp(__name__, specification_dir='')
+app.add_api('calorie-tracker.yml', base_path="/storage", strict_validation=True, validate_responses=True)
 
-app.add_api("calorie-tracker.yml", base_path="/storage", strict_validation=True, validate_responses=True)
-
-# Thread for Kafka
-def start_kafka_thread():
+if __name__ == "__main__":
+    
     t1 = Thread(target=process_messages)
     t1.setDaemon(True)
     t1.start()
-
-if __name__ == "__main__":
-    start_kafka_thread()
+    
     app.run(port=8090)
