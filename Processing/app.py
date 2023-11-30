@@ -124,11 +124,10 @@ def init_scheduler():
     sched.add_job(populate_stats, 'interval', seconds=app_config['scheduler']['period_sec'])
     sched.start()
 
-# Initialize and configure the Connexion application
-if not ("TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test"):
-    app = connexion.FlaskApp(__name__, specification_dir='')
-    CORS(app.app)
-    app.app.config['CORS_HEADERS'] = 'Content-Type'
+
+app = connexion.FlaskApp(__name__, specification_dir='')
+CORS(app.app)
+app.app.config['CORS_HEADERS'] = 'Content-Type'
 
 app.add_api("calorie-tracker.yml", base_path="/processing", strict_validation=True, validate_responses=True)
 

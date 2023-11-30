@@ -94,11 +94,10 @@ def get_food_log(index):
     logger.error("Could not find food log at index %d" % index)
     return {"message": "Not Found"}, 404
 
-# Initialize Connexion, which integrates Flask with Swagger
-if not ("TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test"):
-    app = connexion.FlaskApp(__name__, specification_dir='')
-    CORS(app.app)
-    app.app.config['CORS_HEADERS'] = 'Content-Type'
+
+app = connexion.FlaskApp(__name__, specification_dir='')
+CORS(app.app)
+app.app.config['CORS_HEADERS'] = 'Content-Type'
 
 app.add_api("calorie-tracker.yml", base_path="/audit_log", strict_validation=True, validate_responses=True)
 
