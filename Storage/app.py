@@ -36,8 +36,8 @@ logger.info("App Conf File: %s" % app_conf_file)
 logger.info("Log Conf File: %s" % log_conf_file)
 
 DB_ENGINE = create_engine(f"mysql+pymysql://{app_config['datastore']['user']}:{app_config['datastore']['password']}@{app_config['datastore']['hostname']}:{app_config['datastore']['port']}/{app_config['datastore']['db']}")
-Session = sessionmaker(bind=DB_ENGINE)
 Base.metadata.create_all(DB_ENGINE)
+Session = sessionmaker(bind=DB_ENGINE)
 
 max_retries = app_config["kafka"]["max_retries"]
 current_retry = 0
