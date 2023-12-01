@@ -1,8 +1,8 @@
 version: 1
 PersonalInfo:
-  url: http://calorie-tracker.eastus2.cloudapp.azure.com:8090/personal-info
+  url: http://calorie-tracker.eastus2.cloudapp.azure.com/storage/personal-info
 FoodLog:
-  url: http://calorie-tracker.eastus2.cloudapp.azure.com:8090/food-log
+  url: http://calorie-tracker.eastus2.cloudapp.azure.com/storage/food-log
 
 events:
   hostname: calorie-tracker.eastus2.cloudapp.azure.com
