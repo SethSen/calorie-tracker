@@ -13,7 +13,7 @@ services:
     image: wurstmeister/kafka
     command: [start-kafka.sh]
     ports:
-      - "9092"
+      - "9092:9092"
     hostname: kafka
     environment:
       KAFKA_CREATE_TOPICS: "events:1:1" # topic:partition:replicas
@@ -44,7 +44,7 @@ services:
     ports:
       - "80:80"
     networks:
-      - api.network
+      - "api.network"
 
   db:
     image: mysql:5.7

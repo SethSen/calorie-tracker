@@ -41,6 +41,9 @@ logger = logging.getLogger('basicLogger')
 logger.info("App Conf File: %s" % app_conf_file)
 logger.info("Log Conf File: %s" % log_conf_file)
 
+# Logs Hostname
+logger.info(f"Connected to MySQL database at {db_hostname}:{db_port}")
+
 DB_ENGINE = create_engine(f'mysql+pymysql://{db_user}:{db_password}@{db_hostname}:{db_port}/{db_name}')
 Session = sessionmaker(bind=DB_ENGINE)
 Base.metadata.create_all(DB_ENGINE)
