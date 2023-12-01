@@ -129,4 +129,4 @@ if "TARGET_ENV" not in os.environ or os.environ["TARGET_ENV"] != "test":
 
 if __name__ == "__main__":
     init_scheduler()
-    app.run(port=8100, debug=True, use_reloader=False)
+    app.run(port=8100)
