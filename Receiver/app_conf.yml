@@ -1,8 +1,8 @@
 version: 1
 PersonalInfo:
-  url: http://localhost:8090/personal-info
+  url: calorie-tracker.eastus2.cloudapp.azure.com:8090/personal-info
 FoodLog:
-  url: http://localhost:8090/food-log
+  url: calorie-tracker.eastus2.cloudapp.azure.com:8090/food-log
 
 events:
   hostname: calorie-tracker.eastus2.cloudapp.azure.com
