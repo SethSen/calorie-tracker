@@ -39,48 +39,24 @@ DB_ENGINE = create_engine(f"mysql+pymysql://{app_config['datastore']['user']}:{a
 Session = sessionmaker(bind=DB_ENGINE)
 Base.metadata.create_all(DB_ENGINE)
 
-# max_retries = app_config["kafka"]["max_retries"]
-# current_retry = 0
-# while current_retry < max_retries:
-#     try:
-#         logger.info(f'Attempting to connect to Kafka. Retry count: {current_retry}')
-#         hostname = f"{app_config['events']['hostname']}:{app_config['events']['port']}"
-#         client = KafkaClient(hosts=hostname)
-#         topic = client.topics[str.encode(app_config["events"]["topic"])]
-#         break
-#     except Exception as e:
-#         logger.error(f'Connection to Kafka failed. Error:{str(e)}')
-#         sleep_time = app_config['kafka']['sleep_time']
-#         time.sleep(sleep_time)
-#         current_retry +=1
-# else:
-#     logger.error("Max Retries reached. Could not connect to Kafka")
+max_retries = app_config["kafka"]["max_retries"]
+current_retry = 0
+while current_retry < max_retries:
+    try:
+        logger.info(f'Attempting to connect to Kafka. Retry count: {current_retry}')
+        hostname = f"{app_config['events']['hostname']}:{app_config['events']['port']}"
+        client = KafkaClient(hosts=hostname)
+        topic = client.topics[str.encode(app_config["events"]["topic"])]
+        break
+    except Exception as e:
+        logger.error(f'Connection to Kafka failed. Error:{str(e)}')
+        sleep_time = app_config['kafka']['sleep_time']
+        time.sleep(sleep_time)
+        current_retry +=1
+else:
+    logger.error("Max Retries reached. Could not connect to Kafka")
 
 def process_messages():
-    max_retries = app_config['kafka']['max_retries']
-    retry_delay_sec = app_config['kafka']['sleep_time']
-    retry_count = 0
-    while retry_count < max_retries:
-        try:
-            logger.info(f"Trying to connect to Kafka, attempt {retry_count+1}")
-            hostname = f"{app_config['events']['hostname']}:{app_config['events']['port']}"
-            client = KafkaClient(hosts=hostname)
-            topic = client.topics[str.encode(app_config["events"]["topic"])]
-            consumer = topic.get_simple_consumer(
-                consumer_group=b'event_group',
-                reset_offset_on_start=False,
-                auto_offset_reset=OffsetType.LATEST
-            )
-            logger.info("Successfully connected to Kafka")
-            break
-        except Exception as e:
-            logger.error(f"Connection to Kafka failed on attempt {retry_count+1}: {e}")
-            retry_count += 1
-            if retry_count < max_retries:
-                time.sleep(retry_delay_sec)
-            else:
-                logger.error("Max retry attempts reached, could not connect to Kafka")
-
     """ Process event messages """
     logger.info("Starting Processing")
     consumer = topic.get_simple_consumer(consumer_group=b'event_group',
