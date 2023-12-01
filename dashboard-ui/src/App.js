@@ -6,7 +6,7 @@ import AppStats from './components/AppStats'
 
 function App() {
 
-    const endpoints = ["food-log", "personal-info"]
+    const endpoints = ["personal-info", "food-log"]
 
     const rendered_endpoints = endpoints.map((endpoint) => {
         return <EndpointAudit key={endpoint} endpoint={endpoint}/>
@@ -24,7 +24,6 @@ function App() {
     );
 
 }
-
 
 
 export default App;
