@@ -26,6 +26,12 @@ else:
 with open(app_conf_file, 'r') as f:
    app_config = yaml.safe_load(f.read())
 
+db_user = app_config['datastore']['user']
+db_password = app_config['datastore']['password']
+db_hostname = app_config['datastore']['hostname']
+db_port = app_config['datastore']['port']
+db_name = app_config['datastore']['db']
+
 with open(log_conf_file, 'r') as f:
     log_config = yaml.safe_load(f.read())
     logging.config.dictConfig(log_config)
@@ -35,7 +41,7 @@ logger = logging.getLogger('basicLogger')
 logger.info("App Conf File: %s" % app_conf_file)
 logger.info("Log Conf File: %s" % log_conf_file)
 
-DB_ENGINE = create_engine(f"mysql+pymysql://{app_config['datastore']['user']}:{app_config['datastore']['password']}@{app_config['datastore']['hostname']}:{app_config['datastore']['port']}/{app_config['datastore']['db']}")
+DB_ENGINE = create_engine(f'mysql+pymysql://{db_user}:{db_password}@{db_hostname}:{db_port}/{db_name}')
 Session = sessionmaker(bind=DB_ENGINE)
 Base.metadata.create_all(DB_ENGINE)
 
