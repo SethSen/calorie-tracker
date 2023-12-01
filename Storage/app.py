@@ -45,8 +45,9 @@ logger.info("Log Conf File: %s" % log_conf_file)
 logger.info(f"Connected to MySQL database at {db_hostname}:{db_port}")
 
 DB_ENGINE = create_engine(f'mysql+pymysql://{db_user}:{db_password}@{db_hostname}:{db_port}/{db_name}')
-Session = sessionmaker(bind=DB_ENGINE)
-Base.metadata.create_all(DB_ENGINE)
+Base.metadata.bind = DB_ENGINE
+DB_SESSION = sessionmaker(bind=DB_ENGINE)
+
 
 max_retries = app_config["kafka"]["max_retries"]
 current_retry = 0
@@ -79,7 +80,7 @@ def process_messages():
             logger.info(f"Message: {msg}")
             payload = msg["payload"]
 
-            session = Session()
+            session = DB_SESSION()
 
             try:
                 if msg["type"] == "food_log":
@@ -123,7 +124,7 @@ def process_messages():
 
 def get_personal_info(start_timestamp, end_timestamp):
     """ Gets personal info readings between start and end timestamps """
-    session = Session()
+    session = DB_SESSION()
     try:
         start_timestamp_datetime = datetime.datetime.strptime(start_timestamp, "%Y-%m-%dT%H:%M:%SZ")
         end_timestamp_datetime = datetime.datetime.strptime(end_timestamp, "%Y-%m-%dT%H:%M:%SZ")
@@ -141,7 +142,7 @@ def get_personal_info(start_timestamp, end_timestamp):
 
 def get_food_log(start_timestamp, end_timestamp):
     """ Gets food log readings between start and end timestamps """
-    session = Session()
+    session = DB_SESSION()
     try:
         start_timestamp_datetime = datetime.datetime.strptime(start_timestamp, "%Y-%m-%dT%H:%M:%SZ")
         end_timestamp_datetime = datetime.datetime.strptime(end_timestamp, "%Y-%m-%dT%H:%M:%SZ")
