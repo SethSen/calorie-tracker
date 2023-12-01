@@ -30,6 +30,21 @@ services:
       - /home/seth/kafka:/kafka/kafka-logs
     depends_on:
       - "zookeeper"
+  
+  nginx:
+    image: nginx:latest
+    volumes:
+      - /home/seth/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - "receiver"
+      - "storage"
+      - "processing"
+      - "audit"
+      - "dashboard"
+    ports:
+      - "80:80"
+    networks:
+      - api.network
 
   db:
     image: mysql:5.7
@@ -58,7 +73,7 @@ services:
     depends_on:
       - "kafka"
     networks:
-      - api.network
+      - "api.network"
 
   storage:
     image: storage
@@ -71,8 +86,9 @@ services:
       - /home/seth/logs:/logs
     depends_on:
       - "kafka"
+      - "db"
     networks:
-      - api.network
+      - "api.network"
 
   processing:
     image: processing
@@ -87,7 +103,7 @@ services:
     depends_on:
       - "storage"
     networks:
-      - api.network
+      - "api.network"
 
   audit:
     image: audit
@@ -101,7 +117,7 @@ services:
     depends_on:
       - "kafka"
     networks:
-      - api.network
+      - "api.network"
 
   dashboard:
     image: dashboard
@@ -111,22 +127,7 @@ services:
       - "processing"
       - "audit"
     networks:
-      - api.network
-
-  nginx:
-    image: nginx:latest
-    volumes:
-      - /home/seth/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - "receiver"
-      - "storage"
-      - "processing"
-      - "audit"
-      - "dashboard"
-    ports:
-      - "80:80"
-    networks:
-      - api.network
+      - "api.network"
 
 volumes:
   my-db:
