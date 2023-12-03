@@ -129,6 +129,18 @@ services:
     networks:
       - "api.network"
 
+  health:
+    image: health
+    ports:
+      - "8120:8120"
+    network_mode: "host"
+    environment:
+      - TARGET_ENV=test
+    volumes:
+      - /home/azureuser/config/health:/config
+      - /home/azureuser/logs:/logs
+      - /processing-db:/data
+
 volumes:
   my-db:
   processing-db:

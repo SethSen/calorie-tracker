@@ -1,0 +1,10 @@
+version: 1
+datastore:
+  filename: /data/health.json
+scheduler:
+  period_sec: 5
+urls:
+  storage: http://localhost:8090
+  receiver: http://localhost:8080
+  processing: http://localhost:8100
+  audit: http://localhost:8110

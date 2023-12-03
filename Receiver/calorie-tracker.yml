@@ -49,6 +49,16 @@ paths:
           description: Item created
         "400":
           description: "Invalid input, object invalid"
+
+  /health:
+    get:
+      summary: Health check on receiver service
+      operationId: app.healthCheck
+      description: Runs a health check on receiver to see if the service is running or not
+      responses:
+        '200':
+          description: service is running and healthy
+
 components:
   schemas:
     PersonalInfo:

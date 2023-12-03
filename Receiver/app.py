@@ -84,6 +84,11 @@ def FoodLog(body):
     send_kafka("food_log", body)
     return NoContent, 201
 
+
+def healthCheck():
+    return NoContent, 200
+
+
 # Initialize Connexion app to integrate Flask with Swagger
 app = connexion.FlaskApp(__name__, specification_dir='')
 # Add API with validation options

@@ -1,0 +1,62 @@
+openapi: 3.0.0
+servers: []
+info:
+  description: This is a simple API
+  version: "1.0.0"
+  title: Health check
+  contact:
+    email: ssen1@my.bcit.ca
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+tags:
+  - name: admins
+    description: Secured Admin-only calls
+  - name: developers
+    description: Operations available to regular developers
+paths:
+  /health_check:
+    get:
+      summary: gets health from other services
+      operationId: app.get_health
+      description: gets status of the other services
+      responses:
+        '200':
+          description: returned some stats
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/HealthStats'
+        '400':
+          description: invalid requests
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+components:
+  schemas:
+    HealthStats:
+      required:
+        - receiver_health
+        - storage_health
+        - processing_health
+        - audit_health
+      properties:
+        receiver_health:
+          type: string
+          example: "Running"
+        storage_health:
+          type: string
+          example: "Down"
+        processing_health:
+          type: string
+          example: "Running"
+        audit_health:
+          type: string
+          example: "Running"
+      type: object

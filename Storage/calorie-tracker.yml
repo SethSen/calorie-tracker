@@ -56,8 +56,6 @@ paths:
                   message:
                     type: string
 
-
-
   /food-log:
     get:
       tags:
@@ -100,6 +98,15 @@ paths:
                 properties:
                   message:
                     type: string
+
+  /health:
+    get:
+      summary: Health check on storage service
+      operationId: app.healthCheck
+      description: Runs a health check on storage to see if the service is running or not
+      responses:
+        '200':
+          description: service is running and healthy
 
 
 components:

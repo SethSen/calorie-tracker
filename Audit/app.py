@@ -90,6 +90,8 @@ def get_food_log(index):
     logger.error("Could not find food log at index %d" % index)
     return {"message": "Not Found"}, 404
 
+def healthCheck():
+    return 200
 
 app = connexion.FlaskApp(__name__, specification_dir='')
 app.add_api('calorie-tracker.yml', base_path="/audit",strict_validation=True, validate_responses=True )
