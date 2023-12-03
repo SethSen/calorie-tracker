@@ -4,7 +4,7 @@ datastore:
 scheduler:
   period_sec: 5
 urls:
-  storage: http://localhost:8090
-  receiver: http://localhost:8080
-  processing: http://localhost:8100
-  audit: http://localhost:8110
+  storage: http://calorie-tracker.eastus2.cloudapp.azure.com/storage
+  receiver: http://calorie-tracker.eastus2.cloudapp.azure.com/receiver
+  processing: http://calorie-tracker.eastus2.cloudapp.azure.com/processing
+  audit: http://calorie-tracker.eastus2.cloudapp.azure.com/audit
