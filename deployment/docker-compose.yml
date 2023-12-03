@@ -137,8 +137,8 @@ services:
     environment:
       - TARGET_ENV=test
     volumes:
-      - /home/azureuser/config/health:/config
-      - /home/azureuser/logs:/logs
+      - /home/seth/config/health:/config
+      - /home/seth/logs:/logs
       - /processing-db:/data
 
 volumes:
