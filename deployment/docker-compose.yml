@@ -133,13 +133,14 @@ services:
     image: health
     ports:
       - "8120:8120"
-    network_mode: "host"
     environment:
       - TARGET_ENV=test
     volumes:
       - /home/seth/config/health:/config
       - /home/seth/logs:/logs
       - /processing-db:/data
+    networks:
+      - "api.network"
 
 volumes:
   my-db:
